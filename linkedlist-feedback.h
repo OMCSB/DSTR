@@ -1,15 +1,13 @@
-/* lab5-linkedlist-singly.h */
 
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
-/**
- * with structure implementation...
- */
 struct NodeFeedback
 {
     string feedbackDetail[3];
     NodeFeedback *next; // link pointer
+    NodeFeedback *prev;
 };
 
 struct LinkedListFeedback
@@ -44,121 +42,117 @@ struct LinkedListFeedback
         size++; 
     }
 
-    int getSize()
-    {
-        return size;
-    }
 
-    int countFeedbacks() {
-        int counter = 0;
+    int feedback_counter() {
+        int cnt = 0;
 
         NodeFeedback *curr = head;
         while (curr != nullptr) {
-            counter++;
+            cnt++;
             curr = curr->next;
         }
         
-        return counter;
+        return cnt;
     }
 
     string* show()
     {
-        int maxFeedback = countFeedbacks();
+        int feedbackMaxAmount = feedback_counter();
         NodeFeedback* curr = head;
         NodeFeedback* lastNode = nullptr;
-        string hyphen(222, '-');
-        string switchPage;
-        int currentPage = 1;
-        int currentPosition = 0; // Variable to store the current position
-        int choosenData;
+        string optChange;
+        int currPage = 1;
+        int currPosition = 0; // Variable to store the current position
+        int dataChosen;
 
-        int totalPages = (maxFeedback + 9) / 10; // Calculate the total number of pages
+        int pageTotal = (feedbackMaxAmount + 9) / 10; // Calculate the total number of pages
         
         while (true)
         {
-            int feedbackCount = 0;
-
+            int feedbackCnt = 0;
             // Display the current page of feedbacks
-            cout << hyphen << endl << " ID |           Sender              |                                    Institution                                    |                                              Feedback                                              |\n" << hyphen << endl;
-            while (curr != nullptr && feedbackCount < 10)
+            cout << " ID | Sender              | Institution                                       | Feedback                                                         |\n" << endl;
+            while (curr != nullptr && feedbackCnt < 10)
             {
-                currentPosition++; // Increment the current position
-                printf(" %-*s| %-*s| %-*s| %-*s|\n", 3, to_string(currentPosition).c_str(), 30, curr->feedbackDetail[0].c_str(), 82, curr->feedbackDetail[1].c_str(), 99, curr->feedbackDetail[2].c_str());
+                currPosition++; // Increment the current position
+                printf(" %-*s| %-*s| %-*s| %-*s|\n", 3, to_string(currPosition).c_str(), 20, curr->feedbackDetail[0].c_str(), 50, curr->feedbackDetail[1].c_str(), 65, curr->feedbackDetail[2].c_str());
                 lastNode = curr;
                 curr = curr->next;
-                feedbackCount++;
+                feedbackCnt++;
             }
 
-            cout << hyphen << "\n\n- Type the corresponding ID to reply";
-            if (currentPage < totalPages) // Check if there are more pages available
+            cout << "\nPlease select a number to reply";
+            if (currPage < pageTotal) // Check if there are more pages available
             {
-                cout << "\n- Type \"z\" to go to the next page";
+                cout << "\nType \"n\" to go to the next page";
             }
-            if (currentPage > 1)
+            if (currPage > 1)
             {
-                cout << "\n- Type \"x\" to go back to the previous page";
+                cout << "\nType \"p\" to go back to the previous page";
             }
-            cout << "\n- Type \"c\" to exit";
-            cout << "\n\nWhat do you want to do: ";
+            cout << "\n- Type \"x\" to exit";
+            cout << "\nPlease enter an option: ";
 
-            getline(cin, switchPage);
-            // system("cls");
+            getline(cin, optChange);
+            system("cls");
             try {
-                choosenData = stoi(switchPage);
+                dataChosen = stoi(optChange);
             }
-            catch(const std::exception& e) {
+            catch(const exception& e) {
                 cout << "";
             }
 
-            if (switchPage.empty())
+            if (optChange.empty())
             {
                 system("cls");
-                continue;
             }
 
-            transform(switchPage.begin(), switchPage.end(), switchPage.begin(), [](unsigned char c) { //convert to lowercase
-                return std::tolower(c);
+            transform(optChange.begin(), optChange.end(), optChange.begin(), [](unsigned char c) { //convert to lowercase
+                return tolower(c);
             });
 
-            if (switchPage == "z" && currentPage < totalPages)
+            if (optChange == "n" && currPage < pageTotal)
             {
-                currentPage++;
-                int startPosition = (currentPage - 1) * 10;
+                currPage++;
+                int firstPosition = (currPage - 1) * 10;
                 curr = head;
-                for (int i = 0; i < startPosition; i++)
+                for (int i = 0; i < firstPosition; i++)
                 {
                     curr = curr->next;
                 }
                 lastNode = nullptr;
-                currentPosition = startPosition; // Update the current position
+                currPosition = firstPosition; // Update the current position
             }
-            else if (switchPage == "x" && currentPage > 1)
+            else if (optChange == "p" && currPage > 1)
             {
-                currentPage--;
-                int startPosition = (currentPage - 1) * 10;
+                currPage--;
+                int firstPosition = (currPage - 1) * 10;
                 curr = head;
-                for (int i = 0; i < startPosition; i++)
+                for (int i = 0; i < firstPosition; i++)
                 {
                     curr = curr->next;
                 }
                 lastNode = nullptr;
-                currentPosition = startPosition; // Update the current position
+                currPosition = firstPosition; // Update the current position
+                
             }
-            else if (switchPage == "c") {
-                string* empty = new string[4];
-                empty[3] = "EmPtY";
-                return empty;
+            else if (optChange == "x") {
+                string* null_null = new string[4];
+                null_null[3] = "NULL";
+                return null_null;
+                break;
             }
-            else if (choosenData > 0 && choosenData <= maxFeedback)
+            else if (dataChosen > 0 && dataChosen <= feedbackMaxAmount)
             {
-                string* reply = replyFeedback(choosenData);
+                string* reply = replyFeedback(dataChosen);
                 return reply;
+                break;
             }
             else
             {
-                cout << "Invalid input. Please try again." << endl;
+                system("cls");
+                cout << "Invalid input. Please try again." << endl << endl;
             }
-            system("cls");
         }
     }
 
@@ -171,15 +165,17 @@ struct LinkedListFeedback
         while (curr != nullptr)
         {
             if (numberNow == dataNumber) {
-                printf("Sended by   : %s\nInstitution : %s\nFeedback    : %s\n\n", curr->feedbackDetail[0].c_str(), curr->feedbackDetail[1].c_str(), curr->feedbackDetail[2].c_str());
-                cout << "Reply feedback: ";
+                printf("Sended by    : %s\nInstitution : %s\nFeedback    : %s\n\n", curr->feedbackDetail[0].c_str(), curr->feedbackDetail[1].c_str(), curr->feedbackDetail[2].c_str());
+                cout << "Enter feedback : ";
                 getline(cin, feedbackReply);
+                system("cls");
 
-                string saveData[3] = curr->feedbackDetail;
+                string saveData[3];
+                copy(curr->feedbackDetail, curr->feedbackDetail + 3, saveData);
                 deleteNode(curr->feedbackDetail[0]);
                 // deleteLast();
                 return insertReplyFeedback(saveData, feedbackReply);
-                break;
+                break;           
             }
             numberNow++;
             curr = curr->next;
@@ -198,7 +194,7 @@ struct LinkedListFeedback
     void deleteNode(string nameToDelete)
     {
         transform(nameToDelete.begin(), nameToDelete.end(), nameToDelete.begin(), [](unsigned char c) { //convert to lowercase
-            return std::tolower(c);
+            return tolower(c);
         });
 
         NodeFeedback *curr = head;
@@ -298,10 +294,10 @@ struct LinkedListFeedback
             }
 
             transform(username.begin(), username.end(), username.begin(), [](unsigned char c) { //convert to lowercase
-                return std::tolower(c);
+                return tolower(c);
             });
             transform(mid->feedbackDetail[0].begin(), mid->feedbackDetail[0].end(), mid->feedbackDetail[0].begin(), [](unsigned char c) { //convert to lowercase
-                return std::tolower(c);
+                return tolower(c);
             });
             
             // Check if the middle element matches the target
